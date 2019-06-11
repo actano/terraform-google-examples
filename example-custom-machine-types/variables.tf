@@ -15,9 +15,14 @@ variable "network_name" {
 }
 
 variable "machine_type" {
-  description = "In the form of custom-CPUS-MEM, number of CPUs and memory for custom machine. https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type#specifications"
-  default     = "custom-6-65536-ext"
+    description = "Standard specification"
+    default     = "n1-standard-1"
 }
+
+#variable "machine_type" {
+#  description = "In the form of custom-CPUS-MEM, number of CPUs and memory for custom machine. https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type#specifications"
+#  default     = "custom-2-4096-ext"
+#}
 
 variable "min_cpu_platform" {
   description = "Specifies a minimum CPU platform for the VM instance. Applicable values are the friendly names of CPU platforms, such as Intel Haswell or Intel Skylake. https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform"

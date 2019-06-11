@@ -7,12 +7,20 @@ provider "google" {
 #  region = "${var.region}"
 }
 
+provider "google-beta" {
+  credentials = "${file("/Users/petercaron/keys/rplan-enterprise-9ff48e745334.json")}"
+  project     = "rplan-enterprise"
+  region      = "europe-west1"
+  #  region = "${var.region}"
+}
+
 data "google_project" "current" {}
 
 data "google_compute_default_service_account" "default" {}
 
 # Main Google resource
 resource "google_compute_instance" "default" {
+#  provider                  = "google-beta"
   count                     = "${var.num_nodes}"
   name                      = "${var.name}-${count.index + 1}"
   zone                      = "${var.zone}"
@@ -84,6 +92,7 @@ data "google_compute_image" "bastion" {
   project = "${var.bastion_image_project == "" ? data.google_project.current.project_id : var.bastion_image_project}"
 }
 
+/**
 module "bastion" {
   source             = "GoogleCloudPlatform/managed-instance-group/google"
   version            = "1.1.14"
@@ -100,7 +109,8 @@ module "bastion" {
   service_port_name  = "http"
   wait_for_instances = true
 }
-
+*/
+/**
 // NAT gateway
 module "nat-gateway" {
   source     = "GoogleCloudPlatform/nat-gateway/google"
@@ -111,7 +121,8 @@ module "nat-gateway" {
   subnetwork = "${google_compute_subnetwork.default.name}"
   tags       = ["${var.name}"]
 }
-
+*/
+/**
 output "bastion_instance" {
   value = "${element(module.bastion.instances[0], 0)}"
 }
@@ -119,3 +130,4 @@ output "bastion_instance" {
 output "bastion" {
   value = "gcloud compute ssh --ssh-flag=\"-A\" $(terraform output bastion_instance)"
 }
+*/
