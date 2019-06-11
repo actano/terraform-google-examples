@@ -1,5 +1,10 @@
+
+
 provider "google" {
-  region = "${var.region}"
+  credentials = "${file("/Users/petercaron/keys/rplan-enterprise-9ff48e745334.json")}"
+  project     = "rplan-enterprise"
+  region      = "europe-west1"
+#  region = "${var.region}"
 }
 
 data "google_project" "current" {}
@@ -19,93 +24,59 @@ resource "google_compute_subnetwork" "default" {
   private_ip_google_access = true
 }
 
+#resource "google_compute_instance" "default" {
+#  count                     = "${var.num_nodes}"
+#  name                      = "${var.name}-${count.index + 1}"
+#  zone                      = "${var.zone}"
+#  tags                      = ["${concat(list("${var.name}-ssh", "${var.name}"), var.node_tags)}"]
+#  machine_type              = "${var.machine_type}"
+#  min_cpu_platform          = "${var.min_cpu_platform}"
+#  allow_stopping_for_update = true
+
+#  boot_disk {
+#    auto_delete = "${var.disk_auto_delete}"
+
+#    initialize_params {
+#      image = "${var.image_project}/${var.image_family}"
+#      size  = "${var.disk_size_gb}"
+#      type  = "${var.disk_type}"
+#    }
+#  }
+
+
+
 resource "google_compute_instance" "default" {
-  count                     = "${var.num_nodes}"
-  name                      = "${var.name}-${count.index + 1}"
-  zone                      = "${var.zone}"
-  tags                      = ["${concat(list("${var.name}-ssh", "${var.name}"), var.node_tags)}"]
-  machine_type              = "${var.machine_type}"
-  min_cpu_platform          = "${var.min_cpu_platform}"
-  allow_stopping_for_update = true
+  name         = "test"
+  machine_type = "n1-standard-1"
+  zone         = "europe-west1-d"
+
+  tags = ["rplan", "enterprise"]
 
   boot_disk {
-    auto_delete = "${var.disk_auto_delete}"
-
     initialize_params {
-      image = "${var.image_project}/${var.image_family}"
-      size  = "${var.disk_size_gb}"
-      type  = "${var.disk_type}"
+      image = "debian-cloud/debian-9"
     }
   }
 
-  network_interface {
-    subnetwork    = "${google_compute_subnetwork.default.name}"
-    access_config = ["${var.access_config}"]
-    address       = "${var.network_ip}"
+  // Local SSD disk
+  scratch_disk {
   }
 
-  metadata = "${merge(
-    map("startup-script", "${var.startup_script}", "tf_depends_id", "${var.depends_id}"),
-    var.metadata
-  )}"
+  network_interface {
+    network = "default"
+
+    access_config {
+      // Ephemeral IP
+    }
+  }
+
+  metadata = {
+    version = "enterprise"
+  }
+
+  metadata_startup_script = "echo hi > /test.txt"
 
   service_account {
-    email  = "${var.service_account_email == "" ? data.google_compute_default_service_account.default.email : var.service_account_email }"
-    scopes = ["${var.service_account_scopes}"]
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
   }
-}
-
-resource "google_compute_firewall" "ssh" {
-  name    = "${var.name}-ssh"
-  network = "${google_compute_subnetwork.default.name}"
-
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-
-  source_tags = ["${var.name}-bastion"]
-  target_tags = ["${var.name}-ssh"]
-}
-
-// Bastion host
-data "google_compute_image" "bastion" {
-  family  = "${var.bastion_image_family}"
-  project = "${var.bastion_image_project == "" ? data.google_project.current.project_id : var.bastion_image_project}"
-}
-
-module "bastion" {
-  source             = "GoogleCloudPlatform/managed-instance-group/google"
-  version            = "1.1.14"
-  region             = "${var.region}"
-  zone               = "${var.zone}"
-  network            = "${google_compute_subnetwork.default.name}"
-  subnetwork         = "${google_compute_subnetwork.default.name}"
-  target_tags        = ["${var.name}-bastion"]
-  machine_type       = "${var.bastion_machine_type}"
-  name               = "${var.name}-bastion"
-  compute_image      = "${data.google_compute_image.bastion.self_link}"
-  http_health_check  = false
-  service_port       = "80"
-  service_port_name  = "http"
-  wait_for_instances = true
-}
-
-// NAT gateway
-module "nat-gateway" {
-  source     = "GoogleCloudPlatform/nat-gateway/google"
-  version    = "1.2.0"
-  region     = "${var.region}"
-  zone       = "${var.zone}"
-  network    = "${google_compute_subnetwork.default.name}"
-  subnetwork = "${google_compute_subnetwork.default.name}"
-  tags       = ["${var.name}"]
-}
-
-output "bastion_instance" {
-  value = "${element(module.bastion.instances[0], 0)}"
-}
-
-output "bastion" {
-  value = "gcloud compute ssh --ssh-flag=\"-A\" $(terraform output bastion_instance)"
 }
