@@ -3,7 +3,7 @@ variable "region" {
 }
 
 variable "zone" {
-  default = "europe-west1-b"
+  default = "europe-west1-d"
 }
 
 variable "network_cidr" {
@@ -60,7 +60,7 @@ variable "disk_size_gb" {
 variable "access_config" {
   description = "The access config block for the instances. Set to [{}] for ephemeral external IP."
   type        = "list"
-  default     = []
+  default     = [{}]
 }
 
 variable "network_ip" {
@@ -71,7 +71,7 @@ variable "network_ip" {
 variable "node_tags" {
   description = "Additional compute instance network tags for the nodes."
   type        = "list"
-  default     = []
+  default     = ["rplan"]
 }
 
 variable "startup_script" {
