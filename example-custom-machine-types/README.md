@@ -1,3 +1,4 @@
+https://github.com/actano/terraform-google-examples.git
 # Custom Machine Types
 
 [![button](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/GoogleCloudPlatform/terraform-google-examples&working_dir=example-custom-machine-types&page=shell&tutorial=README.md)

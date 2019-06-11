@@ -1,17 +1,17 @@
 variable "region" {
-  default = "us-central1"
+  default = "europe-west1"
 }
 
 variable "zone" {
-  default = "us-central1-b"
+  default = "europe-west1-b"
 }
 
 variable "network_cidr" {
-  default = "10.127.0.0/20"
+  default = "192.168.124.0/24"
 }
 
 variable "network_name" {
-  default = "tf-custom-machine"
+  default = "mhq-datacenter"
 }
 
 variable "machine_type" {
@@ -26,7 +26,7 @@ variable "min_cpu_platform" {
 
 variable "name" {
   description = "Name prefix for the nodes"
-  default     = "tf-custom"
+  default     = "mhq-enterprise"
 }
 
 variable "num_nodes" {
@@ -65,7 +65,7 @@ variable "access_config" {
 
 variable "network_ip" {
   description = "Set the network IP of the instance. Useful only when num_nodes is equal to 1."
-  default     = ""
+  default     = "192.168.124.10"
 }
 
 variable "node_tags" {
@@ -92,7 +92,7 @@ variable "depends_id" {
 
 variable "service_account_email" {
   description = "The email of the service account for the instance template."
-  default     = ""
+  default     = "admin-122@rplan-enterprise.iam.gserviceaccount.com"
 }
 
 variable "service_account_scopes" {
